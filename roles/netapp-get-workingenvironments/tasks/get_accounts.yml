@@ -1,0 +1,35 @@
+---
+
+  - name: Get Token
+    uri:
+      url: "https://netapp-cloud-account.auth0.com/oauth/token"
+      method: POST
+      body_format: json
+      return_content: yes
+      body: {"grant_type":"refresh_token", "refresh_token": "{{ refresh_token }}", "client_id": "{{AUTH0_CLIENT}}","audience": "https://api.cloud.netapp.com"}
+      status_code: 200,204,202
+    register: json_response
+
+  - name: set token & token_type
+    set_fact:
+      token: "{{ (json_response.content|from_json).access_token }}"
+      token_type: "{{ (json_response.content|from_json).token_type }}"
+
+  - name: Get Netapp accounts
+    uri:
+      url: "https://cloudmanager.cloud.netapp.com/tenancy/account"
+      method: GET
+      headers:
+        Authorization: "Bearer {{ token }}"
+        X-User-Token: "Bearer {{ token }}"
+      status_code: 200,204,202
+      timeout: 59
+    register: netapp_accounts_response
+
+  - debug: var="netapp_accounts_response"
+
+  - name: "extract account ids"
+    set_fact:
+      account_ids: '{{ netapp_accounts_response.json | json_query("[].{ account_id: accountPublicId, account_name: accountName}")  }}'
+
+#  - debug: var="account_ids"

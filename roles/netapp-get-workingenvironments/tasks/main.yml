@@ -1,0 +1,36 @@
+---
+
+      - name: "GET ACCOUNT  | get account"
+        include_tasks: get_accounts.yml
+
+      - name: Get account agents
+        include_tasks: get_account_agents.yml
+        loop: "{{ account_ids }}"
+        loop_control:
+                loop_var: 'account_metadata'
+
+#      - name: print all agents
+#        debug: var="all_agents"
+
+      - name: "GET ACCOUNT  | get working environments"
+        include_tasks: get_working_environments.yml
+        loop: "{{ all_agents }}"
+        loop_control:
+                loop_var: 'agent_metadata'
+
+      - name: print all_working_environments
+        debug: var="all_working_environments"
+
+      - name: combine all providers working environments to one list
+        set_fact:
+           all_serials_found: "{{ all_serials_found + item.nodes_serials }}"
+        with_items: "{{ all_working_environments }}"
+
+      - name: print all_serials_found
+        debug: var="all_serials_found"
+
+      - debug: msg="serial {{ serial_id }} was found"
+        when: serial_id in all_serials_found
+
+      - debug: msg="serial {{ serial_id }} could not be found"
+        when: serial_id not in all_serials_found

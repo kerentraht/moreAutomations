@@ -1,0 +1,72 @@
+---
+
+  - name: initialize agent_working_environments list
+    set_fact:
+      agent_working_environments: []
+      azureVsaWorkingEnvironments: []
+      azureVsaWorkingEnvironments_enriched: []
+      gcpVsaWorkingEnvironments: []
+      gcpVsaWorkingEnvironments_enriched: []
+      vsaWorkingEnvironments: []
+      vsaWorkingEnvironments_enriched: []
+
+  - name: "call Get working environments  API {{ agent_metadata.agent_id }} {{ agent_metadata.account_id }}"
+    uri:
+      url: "https://cloudmanager.cloud.netapp.com/occm/api/working-environments?fields=ontapClusterProperties"
+      method: GET
+      headers:
+        Authorization: "{{token_type}} {{ token }}"
+        X-Agent-Id: "{{ agent_metadata.agent_id }}"
+        X-Tenancy-Account-Id: "{{ agent_metadata.account_id }}"
+      status_code: 200,204,202
+      timeout: 59
+    register: working_environments_response
+    when: agent_metadata.agent_status == 'active'
+
+  - name: "For each provider get working environments metadata."
+    block:
+      - name: "Extract agent working environment metadata"
+        set_fact:
+          agent_working_environments: "{{ working_environments_response.json }}"
+
+      - debug: var="agent_working_environments"
+# serial_number: ontapClusterProperties.nodes[0].serialNumber,
+
+      - name: "extract Azure working environments nodes"
+        set_fact:
+            azureVsaWorkingEnvironments_nodes: '{{ agent_working_environments | json_query("azureVsaWorkingEnvironments[].ontapClusterProperties.nodes") }}'
+
+#      - debug: var="azureVsaWorkingEnvironments_nodes"
+
+      - name: "extract Azure working environments metadata"
+        set_fact:
+          azureVsaWorkingEnvironments: '{{ agent_working_environments | json_query("azureVsaWorkingEnvironments[].{  nodes_serials: ontapClusterProperties.nodes[*].serialNumber ,provider: cloudProviderName, we_name: name, we_id: publicId, tenant_id: tenantId}") }}'
+
+      - name: "enrich Azure working environments metadata with agent and account ids"
+        set_fact:
+          azureVsaWorkingEnvironments_enriched: '{{ azureVsaWorkingEnvironments_enriched + [item | combine({"account_id": agent_metadata.account_id, "agent_id": agent_metadata.agent_id})] }}'
+        with_items: "{{ azureVsaWorkingEnvironments }}"
+
+      - name: "extract Azure working environments metadata"
+        set_fact:
+          gcpVsaWorkingEnvironments: '{{ agent_working_environments | json_query("gcpVsaWorkingEnvironments[].{  nodes_serials: ontapClusterProperties.nodes[*].serialNumber ,provider: cloudProviderName, we_name: name, we_id: publicId, tenant_id: tenantId}")  }}'
+
+      - name: "enrich GCP working environments metadata with agent and account ids"
+        set_fact:
+          gcpVsaWorkingEnvironments_enriched: '{{ gcpVsaWorkingEnvironments_enriched + [item | combine({"account_id": agent_metadata.account_id, "agent_id": agent_metadata.agent_id})] }}'
+        with_items: "{{ gcpVsaWorkingEnvironments }}"
+
+      - name: "extract Amazon working environments metadata"
+        set_fact:
+          vsaWorkingEnvironments: '{{ agent_working_environments | json_query("vsaWorkingEnvironments[].{  nodes_serials: ontapClusterProperties.nodes[*].serialNumber ,provider: cloudProviderName, we_name: name, we_id: publicId, tenant_id: tenantId}")  }}'
+
+      - name: "enrich Amazon working environments metadata with agent and account ids"
+        set_fact:
+          vsaWorkingEnvironments_enriched: '{{ vsaWorkingEnvironments_enriched +  [item | combine({"account_id": agent_metadata.account_id, "agent_id": agent_metadata.agent_id})] }}'
+        with_items: "{{ vsaWorkingEnvironments }}"
+
+      - name: combine all providers working environments to one list
+        set_fact:
+          all_working_environments: "{{ all_working_environments + azureVsaWorkingEnvironments_enriched + gcpVsaWorkingEnvironments_enriched + vsaWorkingEnvironments_enriched }}"
+
+    when: working_environments_response.skipped is not defined

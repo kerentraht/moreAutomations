@@ -1,0 +1,13 @@
+---
+
+- name: "MGMT NETAPP accounts"
+  hosts: 127.0.0.1
+  connection: local
+  vars:
+    AUTH0_CLIENT: Mu0V1ywgYteI6w1MbD15fKfVIUrNXGWC
+    AUTH0_DOMAIN: netapp-cloud-account.auth0.com
+    all_agents: []
+    all_working_environments: []
+    all_serials_found: []
+  roles:
+    - roles/netapp-get-workingenvironments
