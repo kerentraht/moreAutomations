@@ -4,7 +4,7 @@ This repo contains an Ansible-based automation for CVO customers, that retreives
 
 ## Documentation
 ### Prerequesits:
-- A server/computer that has https access to the internet (in particular to: cloudmanager.netapp.com)
+- A server/computer that has https access to the internet (in particular to: **cloudmanager.netapp.com** and **cloudsync.netapp.com** )
 - A valid version of Ansible installed
 - The current dir cloned into the server
 - An API refresh_token ([Click here](https://services.cloud.netapp.com/refresh-token) for the refresh token generator site)
