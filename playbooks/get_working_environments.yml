@@ -9,5 +9,6 @@
     all_agents: []
     all_working_environments: []
     all_serials_found: []
+    all_relationships: []
   roles:
     - roles/netapp-get-workingenvironments
