@@ -9,8 +9,8 @@
         loop_control:
                 loop_var: 'account_metadata'
 
-#      - name: print all agents
-#        debug: var="all_agents"
+    #  - name: print all agents
+    #    debug: var="all_agents"
 
       - name: "GET ACCOUNT  | get working environments"
         include_tasks: get_working_environments.yml
@@ -20,6 +20,15 @@
 
       - name: print all_working_environments
         debug: var="all_working_environments"
+      
+      - name: "Get Cloud Sync Relationships"
+        include_tasks: get_sync_relationships.yml
+        loop: "{{account_ids}}"
+        loop_control:
+                loop_var: 'account_id'
+      
+      - name: print all relationships
+        debug: var="all_relationships"
 
       # - name: combine all providers working environments to one list
       #   set_fact:
