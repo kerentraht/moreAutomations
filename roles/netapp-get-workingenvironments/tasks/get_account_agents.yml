@@ -14,11 +14,11 @@
 
   - name: parse account agents API response
     set_fact:
-      account_ids: '{{ account_agent_response.json | json_query("agents[].{ agent_id: agentId, agent_name: name, agent_status: status }")  }}'
+      agents_ids: '{{ account_agent_response.json | json_query("agents[].{ agent_id: agentId, agent_name: name, agent_status: status }")  }}'
 
 #  - debug: var="account_ids"
 
   - name: accumalate to all_agents variable
     set_fact:
       all_agents: "{{ all_agents + [ { 'account_id' : account_metadata.account_id, 'agent_id' : item.agent_id, 'agent_name' : item.agent_name, 'agent_status' : item.agent_status } ] }}"
-    with_items: "{{ account_ids }}"
+    with_items: "{{ agents_ids }}"
