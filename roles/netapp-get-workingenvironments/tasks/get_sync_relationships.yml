@@ -22,11 +22,11 @@
     set_fact:
       relationships: "{{ get_relationships_response.json }}"
   
-  - name: "extract Sync relationshipd=d metadata"
+  - name: "Extract Sync relationships metadata"
     set_fact:
       accountRelationshipsInfo: '{{ relationships | json_query("[].{  relationship_id: relationshipId ,broker_id: dataBroker, phase: phase}") }}'
 
-  - name: "enrich Accounts sync relationships with account id"
+  - name: "Enrich CloudSync relationships with account id"
     set_fact:
       accountRelationshipsInfo_enriched: '{{ accountRelationshipsInfo_enriched + [item | combine({"Account_id": account.account_id, "Account_name": account.account_name})] }}'
     with_items: "{{ accountRelationshipsInfo }}"
