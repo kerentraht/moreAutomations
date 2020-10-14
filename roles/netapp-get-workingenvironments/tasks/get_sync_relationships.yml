@@ -1,7 +1,7 @@
 ---
 
   - name: Print loop var
-    debug: msg={{account_id.account_id}}
+    debug: msg={{account.account_id}}
 
   - name: Initialize vars
     set_fact:
@@ -13,12 +13,12 @@
       method: GET
       headers:
         Authorization: "Bearer {{ token }}"
-        x-account-id: "{{ account_id.account_id }}"
+        x-account-id: "{{ account.account_id }}"
       status_code: 200,204,202
       timeout: 59
     register: get_relationships_response
 
-  - name: Extract sync relationships for account {{ account_id.account_id }}
+  - name: Extract sync relationships for account {{ account.account_id }}
     set_fact:
       relationships: "{{ get_relationships_response.json }}"
   
@@ -28,11 +28,11 @@
 
   - name: "enrich Accounts sync relationships with account id"
     set_fact:
-      accountRelationshipsInfo_enriched: '{{ accountRelationshipsInfo_enriched + [item | combine({"account_id": accountid.account_id})] }}'
+      accountRelationshipsInfo_enriched: '{{ accountRelationshipsInfo_enriched + [item | combine({"Account_id": account.account_id, "Account_name": account.account_name})] }}'
     with_items: "{{ accountRelationshipsInfo }}"
 
-  - name: Print relationships for account {{ account_id.account_id }}
-    debug: msg={{accountRelationshipsInfo_enriched}}
+  # - name: Print relationships for account {{ account.account_id }}
+  #   debug: msg={{accountRelationshipsInfo_enriched}}
   
   - name: Combine relationships to one list
     set_fact:
