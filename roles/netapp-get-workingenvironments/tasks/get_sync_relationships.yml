@@ -28,7 +28,7 @@
 
   - name: "enrich Accounts sync relationships with account id"
     set_fact:
-      accountRelationshipsInfo_enriched: '{{ accountRelationshipsInfo_enriched + [item | combine({"account_id": accountid.account_id})] }}'
+      accountRelationshipsInfo_enriched: '{{ accountRelationshipsInfo_enriched + [item | combine({"account_id": account_id.account_id})] }}'
     with_items: "{{ accountRelationshipsInfo }}"
 
   - name: Print relationships for account {{ account_id.account_id }}
