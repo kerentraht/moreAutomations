@@ -25,9 +25,9 @@
         include_tasks: get_sync_relationships.yml
         loop: "{{account_ids}}"
         loop_control:
-                loop_var: 'account_id'
+                loop_var: 'account'
       
-      - name: print all relationships
+      - name: print all CloudSync relationships per account
         debug: var="all_relationships"
 
       # - name: combine all providers working environments to one list

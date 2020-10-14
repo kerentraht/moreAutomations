@@ -44,7 +44,7 @@
 
       - name: "enrich Azure working environments metadata with agent and account ids"
         set_fact:
-          azureVsaWorkingEnvironments_enriched: '{{ azureVsaWorkingEnvironments_enriched + [item | combine({"account_id": agent_metadata.account_id, "agent_id": agent_metadata.agent_id})] }}'
+          azureVsaWorkingEnvironments_enriched: '{{ azureVsaWorkingEnvironments_enriched + [item | combine({"account_id": agent_metadata.account_id, "account_name": agent_metadata.account_name, "agent_id": agent_metadata.agent_id })] }}'
         with_items: "{{ azureVsaWorkingEnvironments }}"
 
       - name: "extract Azure working environments metadata"
@@ -53,7 +53,7 @@
 
       - name: "enrich GCP working environments metadata with agent and account ids"
         set_fact:
-          gcpVsaWorkingEnvironments_enriched: '{{ gcpVsaWorkingEnvironments_enriched + [item | combine({"account_id": agent_metadata.account_id, "agent_id": agent_metadata.agent_id})] }}'
+          gcpVsaWorkingEnvironments_enriched: '{{ gcpVsaWorkingEnvironments_enriched + [item | combine({"account_id": agent_metadata.account_id, "account_name": agent_metadata.account_name, "agent_id": agent_metadata.agent_id})] }}'
         with_items: "{{ gcpVsaWorkingEnvironments }}"
 
       - name: "extract Amazon working environments metadata"
@@ -62,7 +62,7 @@
 
       - name: "enrich Amazon working environments metadata with agent and account ids"
         set_fact:
-          vsaWorkingEnvironments_enriched: '{{ vsaWorkingEnvironments_enriched +  [item | combine({"account_id": agent_metadata.account_id, "agent_id": agent_metadata.agent_id})] }}'
+          vsaWorkingEnvironments_enriched: '{{ vsaWorkingEnvironments_enriched +  [item | combine({"account_id": agent_metadata.account_id, "account_name": agent_metadata.account_name, "agent_id": agent_metadata.agent_id})] }}'
         with_items: "{{ vsaWorkingEnvironments }}"
 
       - name: combine all providers working environments to one list

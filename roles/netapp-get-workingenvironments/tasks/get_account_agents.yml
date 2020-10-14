@@ -20,5 +20,5 @@
 
   - name: accumalate to all_agents variable
     set_fact:
-      all_agents: "{{ all_agents + [ { 'account_id' : account_metadata.account_id, 'agent_id' : item.agent_id, 'agent_name' : item.agent_name, 'agent_status' : item.agent_status } ] }}"
+      all_agents: "{{ all_agents + [ { 'account_id' : account_metadata.account_id, 'account_name': account_metadata.account_name, 'agent_id' : item.agent_id, 'agent_name' : item.agent_name, 'agent_status' : item.agent_status } ] }}"
     with_items: "{{ agents_ids }}"
