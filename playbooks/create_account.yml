@@ -1,0 +1,74 @@
+---
+- name: Create new account
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+
+# Production
+   client_id: Mu0V1ywgYteI6w1MbD15fKfVIUrNXGWC
+   auth0_domain: netapp-cloud-account.auth0.com
+
+  tasks:
+    - name: Get API Token
+      uri:
+        url: https://{{auth0_domain}}/oauth/token
+        method: POST
+        body_format: json
+        return_content: yes
+        body: {"grant_type":"refresh_token", "refresh_token": "{{ refresh_token }}", "client_id": "{{client_id}}"}
+        status_code: 200,204,202
+      register: token_response
+      ignore_errors: no
+    - name: set bearer token & token_type
+      set_fact: token="{{ (token_response.content|from_json).access_token }}"
+    - set_fact: token_type="{{ (token_response.content|from_json).token_type }}"
+
+# Get Account
+    - name: Get Account
+      uri:
+        url: https://cloudmanager.cloud.netapp.com/tenancy/account
+        method: GET
+        #body_format: json
+        headers:
+          Authorization: "Bearer {{ token }}"
+          X-User-Token: "Bearer {{ token }}"
+        return_content: yes
+        status_code: 200,204,202
+      register: account_response
+      ignore_errors: no
+    - set_fact: accounts="{{ account_response.json }}"
+
+    - name: "extract accounts names"
+      set_fact:
+        existing_accounts: '{{ accounts | json_query("[].accountName")  }}'
+    
+    - name: Print axisting accounts
+      debug: msg={{existing_accounts}}
+
+# Create Account
+    - name: Create Account
+      block:
+        - name: Send create API request
+          uri:
+            url: https://cloudmanager.cloud.netapp.com/tenancy/account/{{account_name}}
+            method: POST
+            headers:
+              Authorization: "Bearer {{ token }}"
+              X-User-Token: "Bearer {{ token }}"
+            return_content: yes
+            status_code: 200,204,202
+          register: account_create_response
+          ignore_errors: no
+        - set_fact: new_account_id="{{ (account_create_response.content|from_json).accountPublicId }}"
+          when: account_create_response is succeeded
+        - name: Print result
+          debug: msg="An account named {{':'}} {{account_name}} was successfully created. New account ID is{{':'}} {{new_account_id}}"
+          when: account_create_response is succeeded
+      when: account_name not in existing_accounts
+    
+    - name: Print Errors
+      debug: msg="An account named {{account_name}} already exists!"
+      when: account_name in existing_accounts
+
+
