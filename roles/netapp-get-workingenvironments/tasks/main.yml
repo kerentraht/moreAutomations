@@ -30,16 +30,16 @@
       - name: print all CloudSync relationships per account
         debug: var="all_relationships"
 
-      # - name: combine all providers working environments to one list
-      #   set_fact:
-      #      all_serials_found: "{{ all_serials_found + item.nodes_serials }}"
-      #   with_items: "{{ all_working_environments }}"
-
-      # - name: print all_serials_found
-      #   debug: var="all_serials_found"
-
-      # - debug: msg="serial {{ serial_id }} was found"
-      #   when: serial_id in all_serials_found
-
-      # - debug: msg="serial {{ serial_id }} could not be found"
-      #   when: serial_id not in all_serials_found
+      - name: Check if serial exists
+        block:
+          - name: combine all providers working environments to one list
+            set_fact:
+                all_serials_found: "{{ all_serials_found + item.nodes_serials }}"
+            with_items: "{{ all_working_environments }}"
+          # - name: print all_serials_found
+          #   debug: var="all_serials_found"
+          - debug: msg="serial {{ serial_id }} was found"
+            when: serial_id in all_serials_found
+          - debug: msg="serial {{ serial_id }} could not be found"
+            when: serial_id not in all_serials_found
+        when: serial_id is defined

@@ -1,6 +1,6 @@
 # moreAutomations
 
-This repo contains an Ansible-based automation for CVO customers, that retreives all resources of a user per account.
+This repo contains an Ansible-based automation for CVO customers, that retreives all resources of a user per account, and checks if a given serial number is in use.
 
 ## Documentation
 ### Prerequesits:
@@ -11,10 +11,13 @@ This repo contains an Ansible-based automation for CVO customers, that retreives
 
 ### Usage
 
-Run the following command from the main folder of this repository:
+Run the following command from the main folder of this repository with extre-vars as explained below (do not keep the square brackets in the final command):
 ```
-Ansible-playbook playbooks/get_working_environments.yml  --extra-vars="refresh_token=[YOUR_REFRESH_TOKEN]"
+Ansible-playbook playbooks/get_working_environments.yml  --extra-vars="refresh_token=[YOUR_REFRESH_TOKEN] serial_id=[SERIAL_ID]"
 ```
+- refresh_token: Your user's refresh token for all Cloud Central APIs
+- serial_id (*optional*): The serial_id you would like to search for
+
 
 Example:
 
